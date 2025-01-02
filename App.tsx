@@ -1,118 +1,107 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React,{useState, useEffect} from 'react';
+import { Text, TouchableOpacity, FlatList, View, TextInput } from 'react-native';
+import styles from './Styles';
+import RenderItem from './RenderItem';
+//import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+export interface Tarea {
+  titulo: string;
+  estado: boolean;
+  fecha: Date;
+}
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+export default function App() {
+  const [descripcion , setDescripcion] = useState('');
+  const [listtareas , setListTareas] = useState<Tarea[]>([]);
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+  const marcarEstado = (item: Tarea) =>{
+    const tmp = [... listtareas];
+    const index = tmp.findIndex(x => x.titulo === item.titulo);
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+    const obj = tmp[index];
+    tmp [index].estado = !obj.estado;
+
+    setListTareas(tmp);
+    guardarDatos();
+  };
+
+  const eliminarTarea = (item: Tarea) =>{
+    const tmp = [... listtareas];
+    const index = tmp.findIndex(x => x.titulo === item.titulo);
+    tmp.splice(index, 1);
+    setListTareas(tmp);
+    guardarDatos();
+  };
+
+  const agregarTarea = () =>{
+    const tmp = [... listtareas];
+    const obj = {
+      titulo: descripcion,
+      estado: false,
+      fecha: new Date(),
+    };
+
+    tmp.push(obj);
+    setListTareas(tmp);
+    setDescripcion('');
+    guardarDatos();
+  };
+
+  const guardarDatos = async () => {
+    /*
+    try {
+      await AsyncStorage.setItem('data', JSON.stringify(listtareas));
+    } catch (e) {
+      console.log(e);
+    }
+    */
+  };
+
+  const obtenerDatos = async () => {
+   /*
+    try {
+      const data = await AsyncStorage.getItem('data');
+      if (data !== null) {
+        setListTareas(JSON.parse(data));
+      }
+    } catch (e) {
+      console.log(e);
+    }
+   */
+  };
+
+  useEffect(()=>{
+    obtenerDatos();
+  }, []);
+
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
+    <View style={styles.container}>
+      <Text style={styles.text}>Mis Tareas por Hacer</Text>
+      <View style={styles.inputContainer}>
+        <TextInput
+          value={descripcion}
+          onChangeText={(t: string) => setDescripcion(t)}
+          placeholder="Agregar una nueva tarea"
+          style={styles.textInput} />
+          <TouchableOpacity
+          onPress={agregarTarea}
+          style={styles.addButton}>
+          <Text style={styles.whiteText}>Agregar</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.scrollContainer}>
+        <FlatList
+          renderItem={({item}) => (
+            <RenderItem
+              item={item}
+              eliminarTarea={eliminarTarea}
+              marcarEstado={marcarEstado}
+              />
+          )}
+          data={listtareas}
+        />
+      </View>
     </View>
   );
 }
-
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
-
-export default App;
