@@ -2,7 +2,7 @@ import React,{useState, useEffect} from 'react';
 import { Text, TouchableOpacity, FlatList, View, TextInput } from 'react-native';
 import styles from './Styles';
 import RenderItem from './RenderItem';
-//import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface Tarea {
   titulo: string;
@@ -48,17 +48,14 @@ export default function App() {
   };
 
   const guardarDatos = async () => {
-    /*
     try {
       await AsyncStorage.setItem('data', JSON.stringify(listtareas));
     } catch (e) {
       console.log(e);
     }
-    */
   };
 
   const obtenerDatos = async () => {
-   /*
     try {
       const data = await AsyncStorage.getItem('data');
       if (data !== null) {
@@ -67,7 +64,6 @@ export default function App() {
     } catch (e) {
       console.log(e);
     }
-   */
   };
 
   useEffect(()=>{
